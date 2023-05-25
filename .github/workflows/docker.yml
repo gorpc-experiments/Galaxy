@@ -50,7 +50,6 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/gre-galaxy:latest-arm64
           no-cache: true
 
-
       - name: Create new manifest
         run: docker buildx imagetools create -t ${{ secrets.DOCKER_HUB_USERNAME }}/gre-galaxy:latest ${{ secrets.DOCKER_HUB_USERNAME }}/gre-galaxy:latest-amd64 ${{ secrets.DOCKER_HUB_USERNAME }}/gre-galaxy:latest-arm64
 
