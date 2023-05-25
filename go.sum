@@ -1,2 +1,4 @@
+github.com/AliceDiNunno/KubernetesUtil v0.0.0-20230525174412-55a551369824 h1:UaeKBXtPkA0y3bdkA9Q4XrLOt7dVYoPhfU8DbZBx8kQ=
+github.com/AliceDiNunno/KubernetesUtil v0.0.0-20230525174412-55a551369824/go.mod h1:mbq0+jPu54HIUNh3Q4bUJFoZB+5EwXu/CXroJdqTCUY=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

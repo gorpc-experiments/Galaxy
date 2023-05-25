@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/AliceDiNunno/KubernetesUtil"
 	"github.com/davecgh/go-spew/spew"
 	"log"
 	"net/http"
 	"net/rpc"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -66,13 +68,32 @@ func (t *Galaxy) Register(args *RegisterRequest, quo *RegisterResponse) error {
 	return nil
 }
 
+func getPort() int {
+	port := 0
+	if KubernetesUtil.IsRunningInKubernetes() {
+		port = KubernetesUtil.GetInternalServicePort()
+	}
+	if port == 0 {
+		env_port := os.Getenv("PORT")
+		if env_port == "" {
+			log.Fatalln("PORT env variable isn't set")
+		}
+		envport, err := strconv.Atoi(env_port)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		port = envport
+	}
+
+	return port
+}
+
 func main() {
 	for _, e := range os.Environ() {
 		pair := strings.SplitN(e, "=", 2)
 		fmt.Println(pair[0], "=", pair[1])
 	}
 
-	println("Galaxy is running")
 	arith := new(Galaxy)
 	err := rpc.Register(arith)
 	if err != nil {
@@ -82,7 +103,10 @@ func main() {
 
 	rpc.HandleHTTP()
 
-	err = http.ListenAndServe(":1234", nil)
+	port := getPort()
+
+	println("Galaxy is running on port", port)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		log.Println(err.Error())
 	}
