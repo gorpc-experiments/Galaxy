@@ -39,7 +39,6 @@ type ServiceLibrary map[string]AvailableServices
 type Galaxy int
 
 func (t *Galaxy) LookUp(args *LookUpRequest, quo *LookUpResponse) error {
-	println("LookUp: ", args.ServiceMethod)
 	log.Info().Str("method", args.ServiceMethod).Msg("Looking up method...")
 	for k, v := range serviceLibrary {
 		for service := range v {
