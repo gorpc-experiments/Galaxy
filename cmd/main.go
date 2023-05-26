@@ -10,6 +10,7 @@ import (
 	"net/rpc"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type LookUpRequest struct {
@@ -76,15 +77,9 @@ func setupLogging() {
 
 	// Short caller (file:line)
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-		return file
-		short := file
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
+		if strings.HasPrefix(file, "/app/") {
+			file = strings.TrimPrefix(file, "/app/")
 		}
-		file = short
 		return file + ":" + strconv.Itoa(line)
 	}
 
