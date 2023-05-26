@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/AliceDiNunno/KubernetesUtil"
 	"github.com/davecgh/go-spew/spew"
-	"log"
+	"github.com/gorpc-experiments/ServiceCore"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"net/rpc"
 	"os"
 	"strconv"
-	"strings"
 )
 
 type LookUpRequest struct {
@@ -68,46 +68,46 @@ func (t *Galaxy) Register(args *RegisterRequest, quo *RegisterResponse) error {
 	return nil
 }
 
-func getPort() int {
-	port := 0
-	if KubernetesUtil.IsRunningInKubernetes() {
-		port = KubernetesUtil.GetInternalServicePort()
-	}
-	if port == 0 {
-		env_port := os.Getenv("PORT")
-		if env_port == "" {
-			log.Fatalln("PORT env variable isn't set")
-		}
-		envport, err := strconv.Atoi(env_port)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-		port = envport
+func setupLogging() {
+	if os.Getenv("ENV") == "debug" {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	}
 
-	return port
+	// Short caller (file:line)
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		short := file
+		for i := len(file) - 1; i > 0; i-- {
+			if file[i] == '/' {
+				short = file[i+1:]
+				break
+			}
+		}
+		file = short
+		return file + ":" + strconv.Itoa(line)
+	}
+
+	log.Logger = log.With().Caller().Logger()
 }
 
 func main() {
-	for _, e := range os.Environ() {
-		pair := strings.SplitN(e, "=", 2)
-		fmt.Println(pair[0], "=", pair[1])
-	}
+	setupLogging()
+
+	log.Debug().Strs("env", os.Environ()).Msg("Starting")
 
 	arith := new(Galaxy)
 	err := rpc.Register(arith)
 	if err != nil {
-		log.Println(err.Error())
+		log.Err(err)
 		return
 	}
 
 	rpc.HandleHTTP()
 
-	port := getPort()
+	port := ServiceCore.GetRPCPort()
 
-	println("Galaxy is running on port", port)
+	log.Info().Int("port", port).Msg("Galaxy is running")
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
-		log.Println(err.Error())
+		log.Err(err)
 	}
 }
