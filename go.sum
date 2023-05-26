@@ -1,11 +1,11 @@
-github.com/AliceDiNunno/KubernetesUtil v1.0.2 h1:5a6Umy7gDdaiaffObjmeM5yTERmKLGdhQ10WPA2+GWs=
-github.com/AliceDiNunno/KubernetesUtil v1.0.2/go.mod h1:mbq0+jPu54HIUNh3Q4bUJFoZB+5EwXu/CXroJdqTCUY=
+github.com/AliceDiNunno/KubernetesUtil v1.0.3 h1:PW1YQ1jlySjDdCFTcphSSo6xp5Ky4QYsPkA5pHdmPek=
+github.com/AliceDiNunno/KubernetesUtil v1.0.3/go.mod h1:mbq0+jPu54HIUNh3Q4bUJFoZB+5EwXu/CXroJdqTCUY=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
-github.com/gorpc-experiments/ServiceCore v1.1.0 h1:6tzMIbi2OE+mh+HGnc5YPPRniDXqS9p1w5b0/O/uoTs=
-github.com/gorpc-experiments/ServiceCore v1.1.0/go.mod h1:GgLdcuzjRPAGIbDZWM5gMaG6L0moplAddgHiNHsgbpc=
+github.com/gorpc-experiments/ServiceCore v1.1.3 h1:6XHmnPQzfm2THKDWQqqIjg3k7LWkdrHLygL9NuIaYDg=
+github.com/gorpc-experiments/ServiceCore v1.1.3/go.mod h1:V8RRVT4uGJjs9VffNA09Hjj+Z9v+OWVO+Se1wG6Euh8=
 github.com/mattn/go-colorable v0.1.12 h1:jF+Du6AlPIjs2BiUiQlKOX0rt3SujHxPnksPKZbaA40=
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=

@@ -90,6 +90,8 @@ func main() {
 
 	log.Debug().Strs("env", os.Environ()).Msg("Starting")
 
+	port := ServiceCore.GetRPCPort()
+
 	arith := new(Galaxy)
 	err := rpc.Register(arith)
 	if err != nil {
@@ -98,8 +100,6 @@ func main() {
 	}
 
 	rpc.HandleHTTP()
-
-	port := ServiceCore.GetRPCPort()
 
 	log.Info().Int("port", port).Msg("Galaxy is running")
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
