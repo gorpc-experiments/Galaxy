@@ -39,11 +39,12 @@ type Galaxy int
 
 func (t *Galaxy) LookUp(args *LookUpRequest, quo *LookUpResponse) error {
 	println("LookUp: ", args.ServiceMethod)
+	log.Info().Str("method", args.ServiceMethod).Msg("Looking up method...")
 	for k, v := range serviceLibrary {
 		for service := range v {
 			if v[service] == args.ServiceMethod {
 				quo.Address = k
-				println("Location: ", quo.Address)
+				log.Info().Str("method", args.ServiceMethod).Str("at", quo.Address).Msg("Method found")
 				return nil
 			}
 		}
@@ -55,7 +56,7 @@ func (t *Galaxy) LookUp(args *LookUpRequest, quo *LookUpResponse) error {
 var serviceLibrary ServiceLibrary
 
 func (t *Galaxy) Register(args *RegisterRequest, quo *RegisterResponse) error {
-	spew.Dump("Register: ", args.Components, " at ", args.Address)
+	log.Info().Strs("components", args.Components).Str("address", args.Address).Msg("Registering new components")
 
 	if serviceLibrary == nil {
 		serviceLibrary = make(ServiceLibrary)
