@@ -22,6 +22,8 @@ func (t *Galaxy) LookUp(args *domain.LookUpRequest, quo *domain.LookUpResponse) 
 	module := method[0]
 	service := method[1]
 
+	log.Info().Str("module", module).Str("service", service).Msg("Looking up method")
+
 	for _, v := range t.ServiceLibrary {
 		if v.Name == module {
 			for _, s := range v.Service {
@@ -33,5 +35,8 @@ func (t *Galaxy) LookUp(args *domain.LookUpRequest, quo *domain.LookUpResponse) 
 			}
 		}
 	}
+
+	log.Warn().Str("method", args.ServiceMethod).Msg("Method not found")
+
 	return nil
 }

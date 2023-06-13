@@ -106,6 +106,85 @@ func (t *Galaxy) isModuleBlacklisted(name string) bool {
 	return t.hasService(blacklistedValues, t.getService(name))
 }
 
+func (t *Galaxy) registerModule(module string) {
+	if !t.moduleExists(module) {
+		t.ServiceLibrary = append(t.ServiceLibrary, domain.Module{
+			Name:    module,
+			Service: []domain.Service{},
+		})
+	}
+}
+
+func (t *Galaxy) registerService(module string, component string, host string, address string) {
+	split := strings.Split(component, ".")
+	if len(split) != 2 {
+		return
+	}
+
+	for moduleIndex, m := range t.ServiceLibrary {
+		if m.Name == module {
+			serviceFound := false
+			for serviceIndex, s := range m.Service {
+				if s.Name == split[1] {
+					t.ServiceLibrary[moduleIndex].Service[serviceIndex].Instance.Address = address
+					hostFound := false
+					for hostIndex, h := range s.Instance.Hosts {
+						if h.Name == host {
+							t.ServiceLibrary[moduleIndex].Service[serviceIndex].Instance.Hosts[hostIndex].LastSeen = time.Now().Unix()
+							hostFound = true
+						}
+					}
+					if !hostFound {
+						t.ServiceLibrary[moduleIndex].Service[serviceIndex].Instance.Hosts = append(t.ServiceLibrary[moduleIndex].Service[serviceIndex].Instance.Hosts, domain.Host{
+							Name:     host,
+							LastSeen: time.Now().Unix(),
+						})
+					}
+					serviceFound = true
+					break
+				}
+			}
+			if !serviceFound {
+				t.ServiceLibrary[moduleIndex].Service = append(t.ServiceLibrary[moduleIndex].Service, domain.Service{
+					Name: split[1],
+					Instance: domain.Instance{
+						Address: address,
+						Hosts: []domain.Host{
+							{
+								Name:     host,
+								LastSeen: time.Now().Unix(),
+							},
+						},
+					},
+				})
+			}
+		}
+	}
+}
+
+func (t *Galaxy) register(args *domain.RegisterRequest) {
+	host := args.Host
+	address := args.Address
+
+	if len(args.Components) > 0 {
+		split := strings.Split(args.Components[0], ".")
+		module := ""
+		if len(split) == 2 {
+			module = split[0]
+		}
+
+		if !t.moduleExists(module) {
+			t.registerModule(module)
+		}
+
+		for _, component := range args.Components {
+			if !t.isModuleBlacklisted(component) {
+				t.registerService(module, component, host, address)
+			}
+		}
+	}
+}
+
 func (t *Galaxy) Register(args *domain.RegisterRequest, quo *domain.RegisterResponse) error {
 	log.Info().Strs("components", args.Components).Str("address", args.Address).Msg("Registering new components")
 
@@ -124,103 +203,7 @@ func (t *Galaxy) Register(args *domain.RegisterRequest, quo *domain.RegisterResp
 		return err
 	}
 
-	//found := false
-
-	for serviceIndex := range t.ServiceLibrary {
-		//Already registered services
-		service := t.ServiceLibrary[serviceIndex]
-
-		moduleName := service.Name
-		moduleToRegister := t.getModule(args)
-
-		//If the module is already registered we will update the address
-		if moduleName == moduleToRegister {
-			moduleServices := service.Service
-			componentsToRegister := args.Components
-
-			for componentIndex := range moduleServices {
-				component := moduleServices[componentIndex]
-
-				//If the component is already registered we will update the address
-				for _, componentToRegister := range componentsToRegister {
-					if component.Name == componentToRegister {
-						t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Address = args.Address
-
-						//Add host or update last seen
-
-						foundHost := false
-						for host := range t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Hosts {
-							if t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Hosts[host].Name == args.Host {
-								t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Hosts[host].LastSeen = time.Now().Unix()
-								foundHost = true
-							}
-						}
-
-						if !foundHost {
-							t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Hosts = append(t.ServiceLibrary[serviceIndex].Service[componentIndex].Instance.Hosts, domain.Host{
-								Name:     args.Host,
-								LastSeen: time.Now().Unix(),
-							})
-						}
-
-						log.Info().Strs("components", args.Components).Str("address", args.Address).Msg("Replaced existing service")
-					}
-				}
-			}
-		}
-	}
-
-	if !t.moduleExists(t.getModule(args)) {
-		//Create new module
-		t.ServiceLibrary = append(t.ServiceLibrary, domain.Module{
-			Name:    t.getModule(args),
-			Service: []domain.Service{},
-		})
-	}
-
-	for _, component := range args.Components {
-		currentModule := t.getModule(args)
-
-		found := false
-
-		for serviceIndex := range t.ServiceLibrary {
-			service := t.ServiceLibrary[serviceIndex]
-
-			if service.Name == currentModule {
-				for componentIndex := range service.Service {
-					componentToCheck := service.Service[componentIndex]
-
-					if componentToCheck.Name == component {
-						found = true
-					}
-				}
-			}
-		}
-
-		//some components like health are used internally and should not be registered as a service
-		if !found {
-			if !t.isModuleBlacklisted(component) {
-				t.ServiceLibrary = append(t.ServiceLibrary, domain.Module{
-					Name: currentModule,
-					Service: []domain.Service{
-						{
-							Name: component,
-							Instance: domain.Instance{
-								Address: args.Address,
-
-								Hosts: []domain.Host{
-									{
-										Name:     args.Host,
-										LastSeen: time.Now().Unix(),
-									},
-								},
-							},
-						},
-					},
-				})
-			}
-		}
-	}
+	t.register(args)
 
 	spew.Dump(t.ServiceLibrary)
 
